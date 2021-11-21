@@ -5,7 +5,7 @@ import os
 from torchvision import models
 
 import albumentations
-from albumentations import * 
+from albumentations import *
 from albumentations.pytorch import ToTensorV2
 
 from PIL import Image
@@ -25,16 +25,18 @@ class cfg:
 
 app = Flask(__name__)
 model = EfficientNet.from_pretrained("efficientnet-b1", num_classes=2)
-model.load_state_dict(torch.load("./firstmodel.pt",map_location="cpu"))
+model.load_state_dict(torch.load("./secondmodel.pt",map_location="cpu"))
 model.eval()
 
 def transform_image(image_bytes):
     image=Image.open(io.BytesIO(image_bytes))
+    if np.array(image).shape[2]==4:
+        image=image.convert("RGB")
     image=np.array(image)
     transformations = Compose([
         CenterCrop(height=300,width=200, p=1.0),
         Normalize(mean=cfg.mean, std=cfg.std, max_pixel_value=255.0, p=1.0),
-        ToTensorV2(p=1.0)], 
+        ToTensorV2(p=1.0)],
         p=1.0)
     return transformations(image=image)["image"].unsqueeze(0)
 
